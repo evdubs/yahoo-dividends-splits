@@ -8,7 +8,7 @@ $ Racket transform-load.rkt
 
 The provided schema.sql file shows the expected schema within the target PostgreSQL instance. This process assumes you can write to a 
 /var/tmp/yahoo/dividends-splits folder. This process also assumes you have loaded your database with the NASDAQ symbol file information.
-This data is provided by the [nasdaq-symbols](https://github.com/evdubs/nasdaq-symbols) project.
+This data is provided by the [nasdaq-symbols](https://github.com/evdubs/nasdaq-symbols) project. Despite this project only providing dividends and splits, it is possible to make minor changes to these programs to also download historical data. I have chosen to just get this data from elsewhere (see the [nyse-cta-summary](https://github.com/evdubs/nyse-cta-summary) project) due to the Yahoo data being adjusted for splits, but if you want split and dividend-adjusted data, these programs can hopefully provide a template for doing that.
 
 Finally, there are two parameters required to extract data correctly from Yahoo: cookie and crumb. You can find these values by doing the following:
 
