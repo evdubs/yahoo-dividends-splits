@@ -1,6 +1,7 @@
 #lang racket
 
 (require db)
+(require racket/cmdline)
 (require srfi/19) ; Time Data Types and Procedures
 (require threading)
 
@@ -12,50 +13,47 @@
   (date
    ratio))
 
-(display "dividends splits base folder [/var/tmp/yahoo/dividends-splits]: ")
-(flush-output)
-(define dividends-splits-base-folder
-  (let ([dividends-splits-base-folder-input (read-line)])
-    (if (equal? "" dividends-splits-base-folder-input) "/var/tmp/yahoo/dividends-splits"
-        dividends-splits-base-folder-input)))
+(define base-folder (make-parameter "/var/tmp/yahoo/dividends-splits"))
 
-(display (string-append "dividends splits folder date [" (date->string (current-date) "~1") "]: "))
-(flush-output)
-(define folder-date
-  (let ([date-string-input (read-line)])
-    (if (equal? "" date-string-input) (current-date)
-        (string->date date-string-input "~Y-~m-~d"))))
+(define folder-date (make-parameter (current-date)))
 
-(display (string-append "db user [user]: "))
-(flush-output)
-(define db-user
-  (let ([db-user-input (read-line)])
-    (if (equal? "" db-user-input) "user"
-        db-user-input)))
+(define db-user (make-parameter "user"))
 
-(display (string-append "db name [local]: "))
-(flush-output)
-(define db-name
-  (let ([db-name-input (read-line)])
-    (if (equal? "" db-name-input) "local"
-        db-name-input)))
+(define db-name (make-parameter "local"))
 
-(display (string-append "db pass []: "))
-(flush-output)
-(define db-pass (read-line))
+(define db-pass (make-parameter ""))
 
-(define dbc (postgresql-connect #:user db-user #:database db-name #:password db-pass))
+(command-line
+ #:program "racket transform-load.rkt"
+ #:once-each
+ [("-b" "--base-folder") folder
+                         "Yahoo dividends and splits base folder. Defaults to /var/tmp/yahoo/dividends-splits"
+                         (base-folder folder)]
+ [("-d" "--folder-date") date
+                       "Yahoo dividends and splits folder date. Defaults to today"
+                       (folder-date (string->date date "~Y-~m-~d"))]
+ [("-n" "--db-name") name
+                     "Database name. Defaults to 'local'"
+                     (db-name name)]
+ [("-p" "--db-pass") password
+                     "Database password"
+                     (db-pass password)]
+ [("-u" "--db-user") user
+                     "Database user name. Defaults to 'user'"
+                     (db-user user)])
 
-(parameterize ([current-directory (string-append dividends-splits-base-folder "/" (date->string folder-date "~1") "/")])
+(define dbc (postgresql-connect #:user (db-user) #:database (db-name) #:password (db-pass)))
+
+(parameterize ([current-directory (string-append (base-folder) "/" (date->string (folder-date) "~1") "/")])
   (for ([p (sequence-filter (λ (p) (string-contains? (path->string p) "-div.csv")) (in-directory))])
-    (let ([file-name (string-append dividends-splits-base-folder "/" (date->string folder-date "~1") "/" (path->string p))]
+    (let ([file-name (string-append (base-folder) "/" (date->string (folder-date) "~1") "/" (path->string p))]
           [ticker-symbol (string-replace (path->string p) "-div.csv" "")])
       (call-with-input-file file-name
         (λ (in)
           (with-handlers ([exn:fail? (λ (e) (displayln (string-append "Failed to process "
                                                                       ticker-symbol
                                                                       " for date "
-                                                                      (date->string folder-date "~1")))
+                                                                      (date->string (folder-date) "~1")))
                                        (displayln ((error-value->string-handler) e 1000))
                                        (rollback-transaction dbc))])
             (~> (in-lines in)
@@ -80,16 +78,16 @@ insert into yahoo.dividend (
                                                    (dividend-entry-amount div))
                                        (commit-transaction dbc))) _))))))))
 
-(parameterize ([current-directory (string-append dividends-splits-base-folder "/" (date->string folder-date "~1") "/")])
+(parameterize ([current-directory (string-append (base-folder) "/" (date->string (folder-date) "~1") "/")])
   (for ([p (sequence-filter (λ (p) (string-contains? (path->string p) "-split.csv")) (in-directory))])
-    (let ([file-name (string-append dividends-splits-base-folder "/" (date->string folder-date "~1") "/" (path->string p))]
+    (let ([file-name (string-append (base-folder) "/" (date->string (folder-date) "~1") "/" (path->string p))]
           [ticker-symbol (string-replace (path->string p) "-split.csv" "")])
       (call-with-input-file file-name
         (λ (in)
           (with-handlers ([exn:fail? (λ (e) (displayln (string-append "Failed to process "
                                                                       ticker-symbol
                                                                       " for date "
-                                                                      (date->string folder-date "~1")))
+                                                                      (date->string (folder-date) "~1")))
                                        (displayln ((error-value->string-handler) e 1000))
                                        (rollback-transaction dbc))])
             (~> (in-lines in)

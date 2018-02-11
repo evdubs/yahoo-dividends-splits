@@ -2,6 +2,7 @@
 
 (require db)
 (require net/url)
+(require racket/cmdline)
 (require srfi/19) ; Time Data Types and Procedures
 (require tasks)
 (require threading)
@@ -20,51 +21,48 @@
           (copy-port _ out)))
     #:exists 'replace))
 
-(display (string-append "start date [" (date->string (current-date) "~1") "]: "))
-(flush-output)
-(define start-time
-  (let ([date-string-input (read-line)])
-    (if (equal? "" date-string-input) (number->string (time-second (time-difference (date->time-utc (current-date))
-                                                                                    unix-epoch)))
-        (number->string (time-second (time-difference (date->time-utc (string->date date-string-input "~Y-~m-~d"))
-                                                      unix-epoch))))))
+(define start-time (make-parameter (number->string (time-second (time-difference (date->time-utc (current-date)) unix-epoch)))))
 
-(display (string-append "end date [" (date->string (current-date) "~1") "]: "))
-(flush-output)
-(define end-time
-  (let ([date-string-input (read-line)])
-    (if (equal? "" date-string-input) (number->string (time-second (time-difference (date->time-utc (current-date))
-                                                                                    unix-epoch)))
-        (number->string (time-second (time-difference (date->time-utc (string->date date-string-input "~Y-~m-~d"))
-                                                      unix-epoch))))))
+(define end-time (make-parameter (number->string (time-second (time-difference (date->time-utc (current-date)) unix-epoch)))))
 
-(display (string-append "crumb []: "))
-(flush-output)
-(define crumb (read-line))
+(define crumb (make-parameter ""))
 
-(display (string-append "cookie []: "))
-(flush-output)
-(define cookie (read-line))
+(define cookie (make-parameter ""))
 
-(display (string-append "db user [user]: "))
-(flush-output)
-(define db-user
-  (let ([db-user-input (read-line)])
-    (if (equal? "" db-user-input) "user"
-        db-user-input)))
+(define db-user (make-parameter "user"))
 
-(display (string-append "db name [local]: "))
-(flush-output)
-(define db-name
-  (let ([db-name-input (read-line)])
-    (if (equal? "" db-name-input) "local"
-        db-name-input)))
+(define db-name (make-parameter "local"))
 
-(display (string-append "db pass []: "))
-(flush-output)
-(define db-pass (read-line))
+(define db-pass (make-parameter ""))
 
-(define dbc (postgresql-connect #:user db-user #:database db-name #:password db-pass))
+(command-line
+ #:program "racket extract.rkt"
+ #:once-each
+ [("-ck" "--cookie") ck
+                     "Cookie"
+                     (cookie ck)]
+ [("-cr" "--crumb") cr
+                    "Crumb"
+                    (crumb cr)]
+ [("-e" "--end-date") end
+                      "Final date for history retrieval. Defaults to today"
+                      (end-time (number->string (time-second (time-difference (date->time-utc (string->date end "~Y-~m-~d"))
+                                                                              unix-epoch))))]
+ [("-n" "--db-name") name
+                     "Database name. Defaults to 'local'"
+                     (db-name name)]
+ [("-p" "--db-pass") password
+                     "Database password"
+                     (db-pass password)]
+ [("-s" "--start-date") start
+                        "Earliest date for history retrieval. Defaults to today"
+                        (start-time (number->string (time-second (time-difference (date->time-utc (string->date start "~Y-~m-~d"))
+                                                                                  unix-epoch))))]
+ [("-u" "--db-user") user
+                     "Database user name. Defaults to 'user'"
+                     (db-user user)])
+
+(define dbc (postgresql-connect #:user (db-user) #:database (db-name) #:password (db-pass)))
 
 (define symbols (query-list dbc "
 select
@@ -89,8 +87,8 @@ order by
 
 (define delays (map (λ (x) (* delay-interval x)) (range 0 (length symbols))))
 
-(with-task-server (for-each (λ (l) (schedule-delayed-task (λ () (download-history (first l) start-time end-time "div" crumb cookie)
-                                                            (download-history (first l) start-time end-time "split" crumb cookie))
+(with-task-server (for-each (λ (l) (schedule-delayed-task (λ () (download-history (first l) (start-time) (end-time) "div" (crumb) (cookie))
+                                                            (download-history (first l) (start-time) (end-time) "split" (crumb) (cookie)))
                                                           (second l)))
                             (map list symbols delays))
   ; add a final task that will halt the task server
