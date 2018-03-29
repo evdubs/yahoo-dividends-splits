@@ -2,8 +2,8 @@
 These Racket programs will download the Yahoo dividends and splits CSV files and insert the data into a PostgreSQL database. The intended usage is:
 
 ```
-$ Racket extract.rkt
-$ Racket transform-load.rkt
+$ racket extract.rkt
+$ racket transform-load.rkt
 ```
 
 The provided schema.sql file shows the expected schema within the target PostgreSQL instance. This process assumes you can write to a 
