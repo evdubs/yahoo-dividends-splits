@@ -38,12 +38,9 @@
 (command-line
  #:program "racket extract.rkt"
  #:once-each
- [("-ck" "--cookie") ck
+ [("-c" "--cookie") c
                      "Cookie"
-                     (cookie ck)]
- [("-cr" "--crumb") cr
-                    "Crumb"
-                    (crumb cr)]
+                     (cookie c)]
  [("-e" "--end-date") end
                       "Final date for history retrieval. Defaults to today"
                       (end-time (number->string (time-second (time-difference (date->time-utc (string->date end "~Y-~m-~d"))
@@ -54,6 +51,9 @@
  [("-p" "--db-pass") password
                      "Database password"
                      (db-pass password)]
+ [("-r" "--crumb") r
+                    "Crumb"
+                    (crumb r)]
  [("-s" "--start-date") start
                         "Earliest date for history retrieval. Defaults to today"
                         (start-time (number->string (time-second (time-difference (date->time-utc (string->date start "~Y-~m-~d"))
