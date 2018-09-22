@@ -1,9 +1,12 @@
-#lang racket
+#lang racket/base
 
-(require db)
-(require racket/cmdline)
-(require srfi/19) ; Time Data Types and Procedures
-(require threading)
+(require db
+         racket/cmdline
+         racket/list
+         racket/sequence
+         racket/string
+         srfi/19 ; Time Data Types and Procedures
+         threading)
 
 (struct dividend-entry
   (ex-date
@@ -30,8 +33,8 @@
                          "Yahoo dividends and splits base folder. Defaults to /var/tmp/yahoo/dividends-splits"
                          (base-folder folder)]
  [("-d" "--folder-date") date
-                       "Yahoo dividends and splits folder date. Defaults to today"
-                       (folder-date (string->date date "~Y-~m-~d"))]
+                         "Yahoo dividends and splits folder date. Defaults to today"
+                         (folder-date (string->date date "~Y-~m-~d"))]
  [("-n" "--db-name") name
                      "Database name. Defaults to 'local'"
                      (db-name name)]

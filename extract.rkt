@@ -1,11 +1,15 @@
-#lang racket
+#lang racket/base
 
-(require db)
-(require net/url)
-(require racket/cmdline)
-(require srfi/19) ; Time Data Types and Procedures
-(require tasks)
-(require threading)
+(require db
+         net/url
+         racket/cmdline
+         racket/file
+         racket/list
+         racket/port
+         racket/string
+         srfi/19 ; Time Data Types and Procedures
+         tasks
+         threading)
 
 (define unix-epoch (date->time-utc (string->date "1970-01-01T00:00:00Z+0" "~Y-~m-~dT~H:~M:~SZ~z")))
 
@@ -39,8 +43,8 @@
  #:program "racket extract.rkt"
  #:once-each
  [("-c" "--cookie") c
-                     "Cookie"
-                     (cookie c)]
+                    "Cookie"
+                    (cookie c)]
  [("-e" "--end-date") end
                       "Final date for history retrieval. Defaults to today"
                       (end-time (number->string (time-second (time-difference (date->time-utc (string->date end "~Y-~m-~d"))
@@ -52,8 +56,8 @@
                      "Database password"
                      (db-pass password)]
  [("-r" "--crumb") r
-                    "Crumb"
-                    (crumb r)]
+                   "Crumb"
+                   (crumb r)]
  [("-s" "--start-date") start
                         "Earliest date for history retrieval. Defaults to today"
                         (start-time (number->string (time-second (time-difference (date->time-utc (string->date start "~Y-~m-~d"))
