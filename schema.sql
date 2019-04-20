@@ -1,6 +1,6 @@
 CREATE TABLE yahoo.dividend
 (
-    act_symbol text COLLATE pg_catalog."default" NOT NULL,
+    act_symbol text NOT NULL,
     ex_date date NOT NULL,
     amount numeric NOT NULL,
     CONSTRAINT dividend_pkey PRIMARY KEY (act_symbol, ex_date),
@@ -12,7 +12,7 @@ CREATE TABLE yahoo.dividend
 
 CREATE TABLE yahoo.stock_split
 (
-    act_symbol text COLLATE pg_catalog."default" NOT NULL,
+    act_symbol text NOT NULL,
     date date NOT NULL,
     new_share_amount integer NOT NULL,
     old_share_amount integer NOT NULL,
