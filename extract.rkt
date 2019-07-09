@@ -33,6 +33,10 @@
 
 (define cookie (make-parameter ""))
 
+(define first-symbol (make-parameter ""))
+
+(define last-symbol (make-parameter ""))
+
 (define db-user (make-parameter "user"))
 
 (define db-name (make-parameter "local"))
@@ -49,6 +53,12 @@
                       "Final date for history retrieval. Defaults to today"
                       (end-time (number->string (time-second (time-difference (date->time-utc (string->date end "~Y-~m-~d"))
                                                                               unix-epoch))))]
+ [("-f" "--first-symbol") first
+                          "First symbol to query. Defaults to nothing"
+                          (first-symbol first)]
+ [("-l" "--last-symbol") last
+                         "Last symbol to query. Defaults to nothing"
+                         (last-symbol last)]
  [("-n" "--db-name") name
                      "Database name. Defaults to 'local'"
                      (db-name name)]
@@ -81,10 +91,20 @@ where
     then security_name !~ '(Note|Preferred|Right|Unit|Warrant)'
     else true
   end and
-  last_seen = (select max(last_seen) from nasdaq.symbol)
+  last_seen = (select max(last_seen) from nasdaq.symbol) and
+  case when $1 != ''
+    then act_symbol >= $1
+    else true
+  end and
+  case when $2 != ''
+    then act_symbol <= $2
+    else true
+  end
 order by
   act_symbol;
-"))
+"
+                            (first-symbol)
+                            (last-symbol)))
 
 (disconnect dbc)
 
