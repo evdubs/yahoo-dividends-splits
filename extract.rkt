@@ -17,12 +17,15 @@
   (make-directory* (string-append "/var/tmp/yahoo/dividends-splits/" (date->string (current-date) "~1")))
   (call-with-output-file (string-append "/var/tmp/yahoo/dividends-splits/" (date->string (current-date) "~1") "/"
                                         (string-replace symbol  "-" ".") "-" div-or-split ".csv")
-    (λ (out)
-      (~> (string-append "https://query1.finance.yahoo.com/v7/finance/download/" symbol "?period1=" start-time "&period2=" end-time
-                         "&interval=1d&events=" div-or-split "&crumb=" crumb)
-          (string->url _)
-          (get-pure-port _ (list (string-append "cookie: B=" cookie ";")))
-          (copy-port _ out)))
+    (λ (out) (with-handlers ([exn:fail?
+                              (λ (error)
+                                (displayln (string-append "Encountered error for " symbol))
+                                (displayln ((error-value->string-handler) error 1000)))])
+               (~> (string-append "https://query1.finance.yahoo.com/v7/finance/download/" symbol "?period1=" start-time "&period2=" end-time
+                                  "&interval=1d&events=" div-or-split "&crumb=" crumb)
+                   (string->url _)
+                   (get-pure-port _ (list (string-append "cookie: B=" cookie ";")))
+                   (copy-port _ out))))
     #:exists 'replace))
 
 (define start-time (make-parameter (number->string (time-second (time-difference (date->time-utc (current-date)) unix-epoch)))))
