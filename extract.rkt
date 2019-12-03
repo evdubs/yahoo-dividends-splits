@@ -1,21 +1,22 @@
 #lang racket/base
 
 (require db
+         gregor
+         gregor/period
          net/url
          racket/cmdline
          racket/file
          racket/list
          racket/port
          racket/string
-         srfi/19 ; Time Data Types and Procedures
          tasks
          threading)
 
-(define unix-epoch (date->time-utc (string->date "1970-01-01T00:00:00Z+0" "~Y-~m-~dT~H:~M:~SZ~z")))
+(define unix-epoch (moment 1970 1 1 0 0 0 0 #:tz "UTC"))
 
 (define (download-history symbol start-time end-time div-or-split crumb cookie)
-  (make-directory* (string-append "/var/tmp/yahoo/dividends-splits/" (date->string (current-date) "~1")))
-  (call-with-output-file (string-append "/var/tmp/yahoo/dividends-splits/" (date->string (current-date) "~1") "/"
+  (make-directory* (string-append "/var/tmp/yahoo/dividends-splits/" (date->iso8601 (today))))
+  (call-with-output-file (string-append "/var/tmp/yahoo/dividends-splits/" (date->iso8601 (today)) "/"
                                         (string-replace symbol  "-" ".") "-" div-or-split ".csv")
     (λ (out) (with-handlers ([exn:fail?
                               (λ (error)
@@ -28,9 +29,9 @@
                    (copy-port _ out))))
     #:exists 'replace))
 
-(define start-time (make-parameter (number->string (time-second (time-difference (date->time-utc (current-date)) unix-epoch)))))
+(define start-time (make-parameter (number->string (period-ref (period-between unix-epoch (now/moment) '(seconds)) 'seconds))))
 
-(define end-time (make-parameter (number->string (time-second (time-difference (date->time-utc (current-date)) unix-epoch)))))
+(define end-time (make-parameter (number->string (period-ref (period-between unix-epoch (now/moment) '(seconds)) 'seconds))))
 
 (define crumb (make-parameter ""))
 
@@ -54,8 +55,7 @@
                     (cookie c)]
  [("-e" "--end-date") end
                       "Final date for history retrieval. Defaults to today"
-                      (end-time (number->string (time-second (time-difference (date->time-utc (string->date end "~Y-~m-~d"))
-                                                                              unix-epoch))))]
+                      (end-time (number->string (period-ref (period-between unix-epoch (parse-moment end "yyyy-MM-dd") '(seconds)) 'seconds)))]
  [("-f" "--first-symbol") first
                           "First symbol to query. Defaults to nothing"
                           (first-symbol first)]
@@ -73,8 +73,7 @@
                    (crumb r)]
  [("-s" "--start-date") start
                         "Earliest date for history retrieval. Defaults to today"
-                        (start-time (number->string (time-second (time-difference (date->time-utc (string->date start "~Y-~m-~d"))
-                                                                                  unix-epoch))))]
+                        (start-time (number->string (period-ref (period-between unix-epoch (parse-moment start "yyyy-MM-dd") '(seconds)) 'seconds)))]
  [("-u" "--db-user") user
                      "Database user name. Defaults to 'user'"
                      (db-user user)])
