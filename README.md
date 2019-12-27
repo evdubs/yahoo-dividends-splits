@@ -19,3 +19,11 @@ Finally, there are two parameters required to extract data correctly from Yahoo:
 5. Find the cookies set for this page (in Firefox, right-click, View Page Info, Security, View Cookies). A cookie named "B" will be set. The content of this cookie may look something like `abcdefghi123&b=3&s=ua` and will be what you need to extract.
 
 This cookie and crumb combination should both be valid for a year, so you do not need to do this every time.
+
+### Dependencies
+
+It is recommended that you start with the standard Racket distribution. With that, you will need to install the following packages:
+
+```bash
+$ raco pkg install --skip-installed gregor tasks threading
+```
