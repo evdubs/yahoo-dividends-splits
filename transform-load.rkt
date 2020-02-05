@@ -114,8 +114,12 @@ insert into yahoo.stock_split (
 "
                                                    ticker-symbol
                                                    (split-entry-date split)
-                                                   (first (string-split (split-entry-ratio split) "/"))
-                                                   (second (string-split (split-entry-ratio split) "/")))
+                                                   (if (string-contains? (split-entry-ratio split) "/")
+                                                       (first (string-split (split-entry-ratio split) "/"))
+                                                       (second (string-split (split-entry-ratio split) ":")))
+                                                   (if (string-contains? (split-entry-ratio split) "/")
+                                                       (second (string-split (split-entry-ratio split) "/"))
+                                                       (first (string-split (split-entry-ratio split) ":"))))
                                        (commit-transaction dbc))) _))))))))
 
 (disconnect dbc)
