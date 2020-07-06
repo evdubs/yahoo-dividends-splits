@@ -1,3 +1,5 @@
+CREATE SCHEMA yahoo;
+
 CREATE TABLE yahoo.dividend
 (
     act_symbol text NOT NULL,
