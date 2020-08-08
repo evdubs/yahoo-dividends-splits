@@ -48,9 +48,9 @@
 (define dbc (postgresql-connect #:user (db-user) #:database (db-name) #:password (db-pass)))
 
 (parameterize ([current-directory (string-append (base-folder) "/" (~t (folder-date) "yyyy-MM-dd") "/")])
-  (for ([p (sequence-filter (λ (p) (string-contains? (path->string p) "-div.csv")) (in-directory))])
-    (let ([file-name (string-append (base-folder) "/" (~t (folder-date) "yyyy-MM-dd") "/" (path->string p))]
-          [ticker-symbol (string-replace (path->string p) "-div.csv" "")])
+  (for ([p (sequence-filter (λ (p) (string-contains? (path->string p) "-div.csv")) (in-directory (current-directory)))])
+    (let* ([file-name (path->string p)]
+           [ticker-symbol (string-replace (string-replace file-name (path->string (current-directory)) "") "-div.csv" "")])
       (call-with-input-file file-name
         (λ (in)
           (with-handlers ([exn:fail? (λ (e) (displayln (string-append "Failed to process "
@@ -82,9 +82,9 @@ insert into yahoo.dividend (
                                        (commit-transaction dbc))) _))))))))
 
 (parameterize ([current-directory (string-append (base-folder) "/" (~t (folder-date) "yyyy-MM-dd") "/")])
-  (for ([p (sequence-filter (λ (p) (string-contains? (path->string p) "-split.csv")) (in-directory))])
-    (let ([file-name (string-append (base-folder) "/" (~t (folder-date) "yyyy-MM-dd") "/" (path->string p))]
-          [ticker-symbol (string-replace (path->string p) "-split.csv" "")])
+  (for ([p (sequence-filter (λ (p) (string-contains? (path->string p) "-split.csv")) (in-directory (current-directory)))])
+    (let* ([file-name (path->string p)]
+           [ticker-symbol (string-replace (string-replace file-name (path->string (current-directory)) "") "-split.csv" "")])
       (call-with-input-file file-name
         (λ (in)
           (with-handlers ([exn:fail? (λ (e) (displayln (string-append "Failed to process "
