@@ -6,7 +6,7 @@ $ racket extract.rkt
 $ racket transform-load.rkt
 ```
 
-Both of the above programs will require a password. The available parameters are:
+Both of the above programs will require a database password. The available parameters are:
 
 ```bash
 $ racket extract.rkt -h
