@@ -25,5 +25,5 @@ This cookie and crumb combination should both be valid for a year, so you do not
 It is recommended that you start with the standard Racket distribution. With that, you will need to install the following packages:
 
 ```bash
-$ raco pkg install --skip-installed gregor tasks threading
+$ raco pkg install --skip-installed gregor http-easy tasks threading
 ```

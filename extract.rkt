@@ -3,7 +3,7 @@
 (require db
          gregor
          gregor/period
-         net/url
+         net/http-easy
          racket/cmdline
          racket/file
          racket/list
@@ -24,8 +24,8 @@
                                 (displayln ((error-value->string-handler) error 1000)))])
                (~> (string-append "https://query1.finance.yahoo.com/v7/finance/download/" symbol "?period1=" start-time "&period2=" end-time
                                   "&interval=1d&events=" div-or-split "&crumb=" crumb)
-                   (string->url _)
-                   (get-pure-port _ (list (string-append "cookie: B=" cookie ";")))
+                   (get _ #:stream? #t #:headers (hash 'cookie (string-append "B=" cookie)))
+                   (response-output _)
                    (copy-port _ out))))
     #:exists 'replace))
 
