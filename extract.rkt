@@ -24,9 +24,9 @@
                                 (displayln ((error-value->string-handler) error 1000)))])
                (~> (string-append "https://query1.finance.yahoo.com/v7/finance/download/" symbol "?period1=" start-time "&period2=" end-time
                                   "&interval=1d&events=" div-or-split "&crumb=" crumb)
-                   (get _ #:stream? #t #:headers (hash 'cookie (string-append "B=" cookie)))
-                   (response-output _)
-                   (copy-port _ out))))
+                   (get _ #:headers (hash 'cookie (string-append "B=" cookie)))
+                   (response-body _)
+                   (write-bytes _ out))))
     #:exists 'replace))
 
 (define start-time (make-parameter (number->string (period-ref (period-between unix-epoch (now/moment) '(seconds)) 'seconds))))
