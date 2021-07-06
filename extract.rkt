@@ -114,10 +114,12 @@ order by
 
 (define delays (map (λ (x) (* delay-interval x)) (range 0 (length symbols))))
 
-(with-task-server (for-each (λ (l) (schedule-delayed-task (λ () (download-history (first l) (start-time) (end-time) "split" (crumb) (cookie)))
+(with-task-server (for-each (λ (l) (schedule-delayed-task (λ () (thread (λ () (download-history (first l) (start-time) (end-time)
+                                                                                                "split" (crumb) (cookie)))))
                                                           (second l))
-                              (schedule-delayed-task (λ () (download-history (first l) (start-time) (end-time) "div" (crumb) (cookie)))
-                                                     (+ 5 (second l))))
+                               (schedule-delayed-task (λ () (thread (λ () (download-history (first l) (start-time) (end-time)
+                                                                                            "div" (crumb) (cookie)))))
+                                                      (+ 5 (second l))))
                             (map list symbols delays))
   ; add a final task that will halt the task server
   (schedule-delayed-task (λ () (schedule-stop-task)) (* delay-interval (length delays)))
