@@ -16,8 +16,8 @@
 
 (define (download-history symbol start-time end-time div-or-split crumb cookie)
   (make-directory* (string-append "/var/tmp/yahoo/dividends-splits/" (date->iso8601 (today))))
-  (call-with-output-file (string-append "/var/tmp/yahoo/dividends-splits/" (date->iso8601 (today)) "/"
-                                        (string-replace symbol  "-" ".") "-" div-or-split ".csv")
+  (call-with-output-file* (string-append "/var/tmp/yahoo/dividends-splits/" (date->iso8601 (today)) "/"
+                                         (string-replace symbol  "-" ".") "-" div-or-split ".csv")
     (λ (out) (with-handlers ([exn:fail?
                               (λ (error)
                                 (displayln (string-append "Encountered error for " symbol))

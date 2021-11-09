@@ -44,7 +44,7 @@
 
 (define dividend-file (string-append (base-folder) "/dividend-" (end-date) ".csv"))
 
-(call-with-output-file dividend-file
+(call-with-output-file* dividend-file
   (λ (out)
     (displayln "act_symbol,ex_date,amount" out)
     (for-each (λ (row)
