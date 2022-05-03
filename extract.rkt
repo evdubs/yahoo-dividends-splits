@@ -21,7 +21,7 @@
     (λ (out) (with-handlers ([exn:fail?
                               (λ (error)
                                 (displayln (string-append "Encountered error for " symbol))
-                                (displayln ((error-value->string-handler) error 1000)))])
+                                (displayln error))])
                (~> (string-append "https://query1.finance.yahoo.com/v7/finance/download/" symbol "?period1=" start-time "&period2=" end-time
                                   "&interval=1d&events=" div-or-split "&crumb=" crumb)
                    (get _ #:headers (hash 'cookie (string-append "B=" cookie)))

@@ -3,4 +3,4 @@
 month_ago=$(date -d "-1 month" "+%F")
 dir=$(dirname "$0")
 
-racket ${dir}/extract.rkt -c "$1" -p "$2" -r "$3" -s ${month_ago}
+racket -y ${dir}/extract.rkt -c "$1" -p "$2" -r "$3" -s ${month_ago}

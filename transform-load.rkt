@@ -57,7 +57,7 @@
                                                                       ticker-symbol
                                                                       " for date "
                                                                       (~t (folder-date) "yyyy-MM-dd")))
-                                       (displayln ((error-value->string-handler) e 1000))
+                                       (displayln e)
                                        (rollback-transaction dbc))])
             (~> (in-lines in)
                 (sequence-map (λ (el) (string-split el ",")) _)
@@ -91,7 +91,7 @@ insert into yahoo.dividend (
                                                                       ticker-symbol
                                                                       " for date "
                                                                       (~t (folder-date) "yyyy-MM-dd")))
-                                       (displayln ((error-value->string-handler) e 1000))
+                                       (displayln e)
                                        (rollback-transaction dbc))])
             (~> (in-lines in)
                 (sequence-map (λ (el) (string-split el ",")) _)
