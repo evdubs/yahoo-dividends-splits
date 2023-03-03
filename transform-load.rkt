@@ -55,7 +55,7 @@
         (λ (in)
           (with-handlers ([exn:fail? (λ (e) (displayln (string-append "Failed to process "
                                                                       ticker-symbol
-                                                                      " for date "
+                                                                      " dividends for date "
                                                                       (~t (folder-date) "yyyy-MM-dd")))
                                        (displayln e)
                                        (rollback-transaction dbc))])
@@ -89,7 +89,7 @@ insert into yahoo.dividend (
         (λ (in)
           (with-handlers ([exn:fail? (λ (e) (displayln (string-append "Failed to process "
                                                                       ticker-symbol
-                                                                      " for date "
+                                                                      " splits for date "
                                                                       (~t (folder-date) "yyyy-MM-dd")))
                                        (displayln e)
                                        (rollback-transaction dbc))])
@@ -116,10 +116,10 @@ insert into yahoo.stock_split (
                                                    (split-entry-date split)
                                                    (if (string-contains? (split-entry-ratio split) "/")
                                                        (first (string-split (split-entry-ratio split) "/"))
-                                                       (second (string-split (split-entry-ratio split) ":")))
+                                                       (first (string-split (split-entry-ratio split) ":")))
                                                    (if (string-contains? (split-entry-ratio split) "/")
                                                        (second (string-split (split-entry-ratio split) "/"))
-                                                       (first (string-split (split-entry-ratio split) ":"))))
+                                                       (second (string-split (split-entry-ratio split) ":"))))
                                        (commit-transaction dbc))) _))))))))
 
 (disconnect dbc)
