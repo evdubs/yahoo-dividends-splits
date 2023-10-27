@@ -67,4 +67,4 @@ where
 (system (string-append "cd " (base-folder) "; /usr/local/bin/dolt table import -u --continue dividend dividend-" (end-date) ".csv"))
 
 (system (string-append "cd " (base-folder) "; /usr/local/bin/dolt add dividend; "
-                       "/usr/local/bin/dolt commit -m 'dividend " (end-date) " update'; /usr/local/bin/dolt push"))
+                       "/usr/local/bin/dolt commit -m 'dividend " (end-date) " update'; /usr/local/bin/dolt push --silent"))
